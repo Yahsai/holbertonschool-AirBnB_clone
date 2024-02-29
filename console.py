@@ -3,14 +3,6 @@
 
 import cmd
 from models.base_model import BaseModel
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place
-from models.user import User
-from models.review import Review
-from models.state import State
-from models import storage
-
 
 class HBNBCommand(cmd.Cmd):
     """Command interpreter for HBNB project."""
@@ -18,12 +10,6 @@ class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
     class_dict = {
         "BaseModel": BaseModel,
-        "Amenity": Amenity,
-        "City": City,
-        "Place": Place,
-        "User": User,
-        "Review": Review,
-        "State": State
     }
 
     def emptyline(self):
