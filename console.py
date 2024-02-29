@@ -3,13 +3,14 @@
 
 import cmd
 from models.base_model import BaseModel
+from models import storage
 
 class HBNBCommand(cmd.Cmd):
     """Command interpreter for HBNB project."""
 
     prompt = "(hbnb) "
     class_dict = {
-        "BaseModel": BaseModel,
+        "BaseModel": BaseModel
     }
 
     def emptyline(self):
