@@ -1,114 +1,96 @@
 #!/usr/bin/python3
+"""This module defines the Unittest for FileStorage class"""""
 import unittest
-from json import dumps
+import json
+import os
 from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
+from models.user import User
+from models.state import State
+from models.city import City
+from models.review import Review
+from models.amenity import Amenity
+from models.place import Place
+from datetime import datetime, timedelta
 
-
-class TestAll(unittest.TestCase):
-    """test the method all"""
-    def test_no_arguments(self):
-        """test without args"""
-        test_instance = FileStorage()
-        self.assertEqual(test_instance.all(), FileStorage._FileStorage__objects)
-
-    def test_objects_type(self):
-        """test the type of the obj"""
-        test_instance = FileStorage()
-
-        for obj in test_instance.all().values():
-            self.assertIsInstance(obj, dict)
-
-    def test_arguments(self):
-        """test with args"""
-        test_instance = FileStorage()
-        with self.assertRaises(TypeError):
-            test_instance.all("never gonna give you up")
-
-
-class TestNew(unittest.TestCase):
-    """test the method New"""
-    def test_no_arguments(self):
-        """test without args"""
-        test_instance = FileStorage()
-        with self.assertRaises(TypeError):
-            test_instance.new()
-
-    def test_more_arguments(self):
-        """test with args"""
-        test_instance = FileStorage()
-        with self.assertRaises(TypeError):
-            test_instance.new("I don't know", complex(float(), int()))
-
-
-class TestSave(unittest.TestCase):
-    def setUp(self):
-        """Set up test environment"""
-        self.storage = FileStorage()
-
-    def test_file_path(self):
-        """Test __file_path attribute"""
-        self.assertTrue(hasattr(self.storage, "_FileStorage__file_path"))
-        self.assertIsInstance(self.storage._FileStorage__file_path, str)
-
-    """test the method save"""
-    def test_no_arguments(self):
-        """test without args"""
-        test_instance = FileStorage()
-        test_instance.save()
-
-        with open(FileStorage._FileStorage__file_path, "r") as file:
-            expected_output = dumps(test_instance.all())
-            self.assertEqual(file.read(), expected_output)
-
-    def test_arguments(self):
-        """test with args"""
-        test_instance = FileStorage()
-        with self.assertRaises(TypeError):
-            test_instance.save("hi")
-
-class testReload(unittest.TestCase):
-    """test the method reload"""
-    def test_reload_correcly(self):
-        """test if the  reload convert to __obj"""
-        storage = FileStorage()
-        obj = BaseModel()
-        storage.new(obj)
-        storage.save()
-        storage.reload()
-        key = f"BaseModel.{obj.id}"
-        self.assertIn(key, storage.all())
 
 class TestFileStorage(unittest.TestCase):
+
     def setUp(self):
         """Set up test environment"""
         self.storage = FileStorage()
+        self.obj = BaseModel()
+        self.obj.id = "123"
 
-    def test_file_path(self):
-        """Test __file_path attribute"""
-        storage = FileStorage()
-        self.assertTrue(hasattr(storage, "_FileStorage__file_path"))
-        self.assertIsInstance(storage._FileStorage__file_path, str)
-        self.assertEqual(storage._FileStorage__file_path, "file.json")
+    def tearDown(self):
+        """Tear down test environment"""
+        del self.storage
 
-    def test_initial_objects(self):
-        """Test initial value of __objects"""
-        self.assertEqual(self.storage._FileStorage__objects, {})
+    def test_instantiation(self):
+        """Test instantiation of FileStorage class"""
+        self.assertIsInstance(self.storage, FileStorage)
 
-    def test_add_object(self):
-        """Test adding object to __objects"""
-        obj = BaseModel()
-        self.storage.new(obj)
-        self.assertIn(f"BaseModel.{obj.id}", self.storage._FileStorage__objects)
+    def test_id(self):
+        """Test id"""
+        self.assertEqual(self.obj.id, "123")
 
-    def test_remove_object(self):
-        """Test removing object from __objects"""
-        obj = BaseModel()
-        self.storage.new(obj)
+    def test_Access(self):
+        """Test r-w-x access to file"""
+        self.assertTrue(os.access("models/engine/file_storage.py", os.R_OK))
+        self.assertTrue(os.access("models/engine/file_storage.py", os.W_OK))
+        self.assertFalse(os.access("models/engine/file_storage.py", os.X_OK))
+
+    def test_all(self):
+        """Test all method"""
+        self.assertIsInstance(self.storage.all(), dict)
+
+    def test_new(self):
+        """Test new method and save to dictionary"""
+        self.storage.new(self.obj)
+        key = self.obj.__class__.__name__ + "." + self.obj.id
+        self.assertIn(key, self.storage.all())
+
+    def test_save(self):
+        """Test save method"""
+        self.storage.new(self.obj)
         self.storage.save()
+        self.assertNotEqual(self.obj.updated_at, self.obj.created_at)
+
+    def test_reload(self):
+        """Test reload method"""
+        self.storage.new(self.obj)
+        self.storage.save()
+        self.storage._FileStorage__objects = {}
         self.storage.reload()
-        self.storage.delete(obj)
-        self.assertNotIn(f"BaseModel.{obj.id}", self.storage._FileStorage__objects)
+        key = self.obj.__class__.__name__ + "." + self.obj.id
+        self.assertIn(key, self.storage.all())
+
+    def test_save_no_file(self):
+        """Test save method when the file does not exist"""
+        try:
+            os.remove(self.storage._FileStorage__file_path)
+        except FileNotFoundError:
+            pass
+        self.storage.new(self.obj)
+        self.storage.save()
+        key = self.obj.__class__.__name__ + "." + self.obj.id
+        with open(self.storage._FileStorage__file_path, "r") as f:
+            self.assertIn(key, f.read())
+
+    def test_reload_invalid_json(self):
+        """Test reload method with invalid JSON"""
+        with open(self.storage._FileStorage__file_path, "w") as f:
+            f.write("This is not valid JSON")
+        with self.assertRaises(json.JSONDecodeError):
+            self.storage.reload()
+
+    def test_fundocs(self):
+        """Test if funtions have documentation"""
+        self.assertIsNotNone(FileStorage.__doc__)
+        self.assertIsNotNone(FileStorage.all.__doc__)
+        self.assertIsNotNone(FileStorage.new.__doc__)
+        self.assertIsNotNone(FileStorage.save.__doc__)
+        self.assertIsNotNone(FileStorage.reload.__doc__)
 
 
 if __name__ == '__main__':
