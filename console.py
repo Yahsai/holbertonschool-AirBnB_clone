@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """
 Console module for the AirBnB project.
 """
@@ -6,13 +6,29 @@ Console module for the AirBnB project.
 import cmd
 from models import storage
 from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.review import Review
+from models.amenity import Amenity
+from models.place import Place
+from models.engine.file_storage import FileStorage
 
 class HBNBCommand(cmd.Cmd):
     """
     HBNBCommand class for the command interpreter.
     """
-    prompt = "(hbnb) "
 
+    prompt = "(hbnb) "
+    class_dict = {
+        "BaseModel": BaseModel,
+        "Amenity": Amenity,
+        "City": City,
+        "Place": Place,
+        "User": User,
+        "Review": Review,
+        "State": State
+    }
     def emptyline(self):
         """Do nothing on empty line."""
         pass
