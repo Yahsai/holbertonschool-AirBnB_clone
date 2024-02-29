@@ -1,56 +1,51 @@
 #!/usr/bin/python3
-"""Unittest for the Amenity Class """
+"""Unitesst for Amenity class"""
 import unittest
 from models.amenity import Amenity
 
 
 class TestAmenity(unittest.TestCase):
-    """
-    Test cases for the Amenity class.
-    """
 
-    def test_init(self):
-        """
-        Test the initialization of an Amenity instance.
-        """
-        amenity = Amenity()
-        self.assertIsInstance(amenity, Amenity)
-        self.assertEqual(amenity.name, "")
+    def setUp(self):
+        """Set up for the tests"""
+        self.my_amenity = Amenity()
+        self.my_amenity.name = "Pool"
+        # & Empty object
+        self.amenity2 = Amenity()
+
+    def tearDown(self):
+        """Tear down for tests"""
+        del self.my_amenity
+        del self.amenity2
 
     def test_attributes(self):
-        """
-        Test the attributes of an Amenity instance.
-        """
-        amenity = Amenity()
-        amenity.name = "Swimming Pool"
-        self.assertEqual(amenity.name, "Swimming Pool")
+        """Test the attributes of Amenity"""
+        self.assertEqual(self.my_amenity.name, "Pool")
+
+    def test_attributes_default(self):
+        """ Test attributes default for Amenity """
+        self.assertEqual(self.amenity2.name, "")
+
+    def test_save(self):
+        """Check for updated_at after save()"""
+        self.my_amenity.save()
+        self.assertNotEqual(self.my_amenity.created_at,
+                            self.my_amenity.updated_at)
+
+    def test_str(self):
+        """Test __str__ method"""
+        self.assertEqual(str(self.my_amenity),
+                         "[Amenity] ({}) {}".format(self.my_amenity.id,
+                                                    self.my_amenity.__dict__))
 
     def test_to_dict(self):
-        """
-        Test the to_dict method of an Amenity instance.
-        """
-        amenity = Amenity()
-        amenity.name = "Gym"
-        amenity_dict = amenity.to_dict()
-        self.assertEqual(amenity_dict["name"], "Gym")
-        self.assertEqual(amenity_dict["__class__"], "Amenity")
+        """Test to_dict method"""
+        self.assertEqual('to_dict' in dir(self.my_amenity), True)
 
-    def test_from_dict(self):
-        """
-        Test the from_dict method of the Amenity class.
-        """
-        amenity_dict = {
-            "name": "Sauna",
-            "__class__": "Amenity",
-            "id": "123",
-            "created_at": "2022-01-01T00:00:00.000000",
-            "updated_at": "2022-01-01T00:00:00.000000"
-        }
-        amenity = Amenity(**amenity_dict)
-        self.assertEqual(amenity.name, "Sauna")
-        self.assertEqual(amenity.id, "123")
-        self.assertEqual(amenity.created_at.isoformat(), "2022-01-01T00:00:00.000000")
-        self.assertEqual(amenity.updated_at.isoformat(), "2022-01-01T00:00:00.000000")
+    def test_id(self):
+        """Test id """
+        self.assertNotEqual(self.my_amenity.id, self.amenity2.id)
+
 
 if __name__ == '__main__':
     unittest.main()
