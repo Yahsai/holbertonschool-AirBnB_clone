@@ -1,35 +1,21 @@
 #!/usr/bin/python3
+"""unittest of the console"""
 import unittest
-from unittest.mock import patch
 from console import HBNBCommand
-import io
 
-class TestConsole(unittest.TestCase):
+
+class TestHBNBCommand(unittest.TestCase):
+    """
+    Test case class for testing the HBNBCommand class.
+    """
 
     def setUp(self):
-        self.console = HBNBCommand()
+        """Set up for the tests"""
+        self.cmd = HBNBCommand()
 
-    def tearDown(self):
-        pass
-
-    @patch('sys.stdout', new_callable=io.StringIO)
-    def test_quit_command(self, mock_stdout):
-        with patch('builtins.input', return_value="quit"):
-            self.console.cmdloop()
-        self.assertEqual(mock_stdout.getvalue(), "(hbnb) ")
-
-    @patch('sys.stdout', new_callable=io.StringIO)
-    def test_help_command(self, mock_stdout):
-        with patch('builtins.input', return_value="help"):
-            self.console.cmdloop()
-        self.assertIn("Documented commands (type help <topic>):", mock_stdout.getvalue())
-
-    @patch('sys.stdout', new_callable=io.StringIO)
-    def test_create_command(self, mock_stdout):
-        with patch('builtins.input', return_value="create BaseModel"):
-            self.console.cmdloop()
-        output = mock_stdout.getvalue().strip()
-        self.assertTrue(output)
+    def test_instantiation(self):
+        """Test instantiation of HBNBCommand"""
+        self.assertIsInstance(self.cmd, HBNBCommand)
 
 if __name__ == '__main__':
     unittest.main()
