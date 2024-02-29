@@ -1,90 +1,81 @@
 #!/usr/bin/python3
-"""unittest for the class BaseModel"""
+"""Unitesst for BaseModel class"""
 import unittest
-import os
 from models.base_model import BaseModel
-import uuid
 from datetime import datetime
 
 
-class TestModel(unittest.TestCase):
-    """This class contains unit tests for the BaseModel class."""
+class TestBaseModel(unittest.TestCase):
+    def setUp(self):
+        """Sets up testing environment"""
+        self.my_model = BaseModel()
+        self.my_model.name = "My First Model"
+        self.my_model.my_number = 89
 
-    def test_Class(self):
-        """Test the initialization of the BaseModel class."""
-        model = BaseModel()
-        self.assertTrue(hasattr(model, "id"))
-        self.assertTrue(hasattr(model, "created_at"))
-        self.assertTrue(hasattr(model, "updated_at"))
-        self.assertEqual(model.created_at, model.updated_at)
-
-    def test_diferent_id(self):
-        """Test that different instances of BaseModel have different ids."""
-        model_1 = BaseModel()
-        model_2 = BaseModel()
-        self.assertNotEqual(model_1.id, model_2.id)
-
-    def test_init_with_kwargs(self):
-        """Test initialization with keyword arguments."""
-        kwargs = {
-            "id": "123",
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
-        }
-
-        model = BaseModel(**kwargs)
-        for key, value in kwargs.items():
-            if key in ["created_at", "updated_at"]:
-                self.assertEqual(getattr(model, key).isoformat(), value)
-            else:
-                self.assertEqual(getattr(model, key), value)
+    def tearDown(self):
+        """Tears down testing environment"""
+        del self.my_model
 
     def test_str(self):
-        """Test the __str__ method of BaseModel."""
-        model = BaseModel()
-        The_str = f"[{model.__class__.__name__}] ({model.id}) {model.__dict__}"
-        self.assertEqual(model.__str__(), The_str)
+        """Tests str method of BaseModel"""
+        my_model_str = self.my_model.__str__()
+        self.assertEqual(my_model_str,
+                         "[BaseModel] ({}) {}".format(self.my_model.id,
+                                                      self.my_model.__dict__))
 
-    def test_double_check_update_not_save(self):
-        """Test that the updated not change if is call more than twice."""
-        model = BaseModel()
-        time_1 = model.updated_at
-        time_2 = model.updated_at
-        self.assertEqual(time_1, time_2)
+    def test_init_no_kwargs(self):
+        """Test initialization without kwargs"""
+        bm = BaseModel()
+        self.assertIsInstance(bm.id, str)
+        self.assertIsInstance(bm.created_at, datetime)
+        self.assertIsInstance(bm.updated_at, datetime)
 
-    def test_save(self):
-        """Test the save method of BaseModel."""
-        model = BaseModel()
-        time_1 = model.updated_at
-        model.my_number = 89
-        model.save()
-        time_2 = model.updated_at
-        self.assertNotEqual(time_1, time_2)
+    def test_init_with_kwargs(self):
+        """Test initialization with kwargs"""
+        kwargs = {
+            "id": "1234-5678-9012",
+            "created_at": "2022-02-22T22:22:22.222222",
+            "updated_at": "2022-02-22T22:22:22.222222",
+            "name": "Test"
+        }
+        bm = BaseModel(**kwargs)
+        self.assertEqual(bm.id, "1234-5678-9012")
+        self.assertEqual(bm.created_at, datetime.strptime(
+            "2022-02-22T22:22:22.222222", "%Y-%m-%dT%H:%M:%S.%f"))
+        self.assertEqual(bm.updated_at, datetime.strptime(
+            "2022-02-22T22:22:22.222222", "%Y-%m-%dT%H:%M:%S.%f"))
+        self.assertEqual(bm.name, "Test")
 
     def test_to_dict(self):
-        """Test the to_dict method of BaseModel."""
-        model = BaseModel()
-        model_dict = model.to_dict()
-        self.assertTrue(isinstance(model_dict, dict))
-        self.assertTrue(isinstance(model, BaseModel))
+        """Tests to_dict method of BaseModel"""
+        my_model_dict = self.my_model.to_dict()
+        self.assertEqual(type(my_model_dict), dict)
+        self.assertEqual(my_model_dict['name'], "My First Model")
+        self.assertEqual(my_model_dict['my_number'], 89)
+        self.assertEqual(my_model_dict['__class__'], "BaseModel")
+        self.assertEqual(my_model_dict['created_at'],
+                         self.my_model.created_at.isoformat())
+        self.assertEqual(my_model_dict['updated_at'],
+                         self.my_model.updated_at.isoformat())
 
-    def test_init_with_args(self):
-        """Test initialization with positional arguments."""
-        args = ["123", datetime.now().isoformat(), datetime.now().isoformat()]
+    def test_save(self):
+        """Tests save method of BaseModel"""
+        my_model = BaseModel()
+        old_updated_at = my_model.updated_at
+        my_model.save()
+        self.assertNotEqual(my_model.created_at, my_model.updated_at)
 
-        model = BaseModel(*args)
-        self.assertEqual(model.id, args[0])
-        self.assertEqual(model.created_at.isoformat(), args[1])
-        self.assertEqual(model.updated_at.isoformat(), args[2])
+    def test_id(self):
+        """Tests id attribute of BaseModel"""
+        self.assertEqual(type(self.my_model.id), str)
 
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up files (if any) created during the tests."""
-        try:
-            os.remove("file.json")  # Adjust filename as necessary
-        except FileNotFoundError:
-            pass
+    def test_created_at(self):
+        """Tests created_at attribute of BaseModel"""
+        self.assertEqual(type(self.my_model.created_at), datetime)
 
+    def test_updated_at(self):
+        """Tests updated_at attribute of BaseModel"""
+        self.assertEqual(type(self.my_model.updated_at), datetime)
 
-if __name__ == '__main__':
-    unittest.main()
+    if __name__ == '__main__':
+        unittest.main()
