@@ -1,20 +1,15 @@
-# tests/test_console.py
-"""Unit test for console
-    """
+#!/usr/bin/python3
 import unittest
 from unittest.mock import patch
 from console import HBNBCommand
 import io
 
 class TestConsole(unittest.TestCase):
-    """TestConsole Class
-    Args:
-        unittest (): properties of unit test"""
+
     def setUp(self):
         self.console = HBNBCommand()
 
     def tearDown(self):
-        """ destroys created file """
         pass
 
     @patch('sys.stdout', new_callable=io.StringIO)
@@ -29,28 +24,12 @@ class TestConsole(unittest.TestCase):
             self.console.cmdloop()
         self.assertIn("Documented commands (type help <topic>):", mock_stdout.getvalue())
 
-import unittest
-from console import HBNBCommand
-
-
-class TestHBNBCommand(unittest.TestCase):
-
-    def setUp(self):
-        """Set up for the tests"""
-        self.cmd = HBNBCommand()
-
-    def test_instantiation(self):
-        """Test instantiation of HBNBCommand"""
-        self.assertIsInstance(self.cmd, HBNBCommand)
-
-    # def test_quit(self):
-    #     """Test quit command"""
-    #     with self.assertRaises(SystemExit):
-    #         self.cmd.do_quit(None)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_create_command(self, mock_stdout):
+        with patch('builtins.input', return_value="create BaseModel"):
+            self.console.cmdloop()
+        output = mock_stdout.getvalue().strip()
+        self.assertTrue(output)
 
 if __name__ == '__main__':
     unittest.main()
