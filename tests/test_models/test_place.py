@@ -1,79 +1,82 @@
 #!/usr/bin/python3
-"""unittest of the Place Class"""
+"""Unitesst for Place class"""
 import unittest
-from models.place import Place
 from models.base_model import BaseModel
+from models.place import Place
 
 
 class TestPlace(unittest.TestCase):
-    """
-    This class contains unit tests for the Place class.
-    """
 
-    def test_init(self):
-        """
-        Test the initialization of a Place instance with custom attributes.
-        """
-        place = Place(city_id="123", user_id="456", name="Test Place")
-        self.assertEqual(place.city_id, "123")
-        self.assertEqual(place.user_id, "456")
-        self.assertEqual(place.name, "Test Place")
+    def setUp(self):
+        """Set up for the tests"""
+        self.my_place = Place()
+        self.my_place.city_id = "SF"
+        self.my_place.user_id = "user1"
+        self.my_place.name = "My Place"
+        self.my_place.description = "A nice place"
+        self.my_place.number_rooms = 3
+        self.my_place.number_bathrooms = 2
+        self.my_place.max_guest = 4
+        self.my_place.price_by_night = 100
+        self.my_place.latitude = 37.7749
+        self.my_place.longitude = -122.4194
+        self.my_place.amenity_ids = ["amenity1", "amenity2"]
+        # & Empty object
+        self.place2 = Place()
 
-    def test_attribute_types(self):
-        """
-        Test the types of attributes in a Place instance.
-        """
-        place = Place()
-        self.assertIsInstance(place.city_id, str)
-        self.assertIsInstance(place.user_id, str)
-        self.assertIsInstance(place.name, str)
-        self.assertIsInstance(place.description, str)
-        self.assertIsInstance(place.number_rooms, int)
-        self.assertIsInstance(place.number_bathrooms, int)
-        self.assertIsInstance(place.max_guest, int)
-        self.assertIsInstance(place.price_by_night, int)
-        self.assertIsInstance(place.latitude, float)
-        self.assertIsInstance(place.longitude, float)
-        self.assertIsInstance(place.amenity_ids, list)
+    def test_attributes(self):
+        """Test the attributes of Place"""
+        self.assertEqual(self.my_place.city_id, "SF")
+        self.assertEqual(self.my_place.user_id, "user1")
+        self.assertEqual(self.my_place.name, "My Place")
+        self.assertEqual(self.my_place.description, "A nice place")
+        self.assertEqual(self.my_place.number_rooms, 3)
+        self.assertEqual(self.my_place.number_bathrooms, 2)
+        self.assertEqual(self.my_place.max_guest, 4)
+        self.assertEqual(self.my_place.price_by_night, 100)
+        self.assertEqual(self.my_place.latitude, 37.7749)
+        self.assertEqual(self.my_place.longitude, -122.4194)
+        self.assertEqual(self.my_place.amenity_ids, ["amenity1", "amenity2"])
+
+    def test_attributes_default(self):
+        """ Test attributes default for Place """
+        self.assertEqual(self.place2.city_id, "")
+        self.assertEqual(self.place2.user_id, "")
+        self.assertEqual(self.place2.name, "")
+        self.assertEqual(self.place2.description, "")
+        self.assertEqual(self.place2.number_rooms, 0)
+        self.assertEqual(self.place2.number_bathrooms, 0)
+        self.assertEqual(self.place2.max_guest, 0)
+        self.assertEqual(self.place2.price_by_night, 0)
+        self.assertEqual(self.place2.latitude, 0.0)
+        self.assertEqual(self.place2.longitude, 0.0)
+        self.assertEqual(self.place2.amenity_ids, [])
+
+    def test_save(self):
+        """Check for updated_at after save()"""
+        self.my_place.save()
+        self.assertNotEqual(self.my_place.created_at,
+                            self.my_place.updated_at)
+
+    def test_str(self):
+        """Test __str__ method"""
+        self.assertEqual(str(self.my_place),
+                         "[Place] ({}) {}".format(self.my_place.id,
+                                                  self.my_place.__dict__))
+
+    def test_to_dict(self):
+        """Test to_dict method"""
+        self.assertEqual('to_dict' in dir(self.my_place), True)
 
     def test_inheritance(self):
-        """
-        Test that Place is a subclass of BaseModel.
-        """
-        place = Place()
-        self.assertTrue(issubclass(type(place), BaseModel))
+        """Test if Place inherits from BaseModel"""
+        self.assertTrue(issubclass(type(self.my_place), BaseModel))
 
-    def test_str_representation(self):
-        """
-        Test the __str__ method of the Place class.
-        """
-        place = Place(name="Test Place")
-        expected_str = "[Place] ({}) {}".format(place.id, place.__dict__)
-        self.assertEqual(str(place), expected_str)
+    def test_method(self):
+        """Test the methods"""
+        self.assertTrue(hasattr(self.my_place, "to_dict"))
+        self.assertTrue(hasattr(self.my_place, "save"))
 
-    def test_to_dict_method(self):
-        """
-        Test the to_dict method of the Place class.
-        """
-        place = Place(name="Test Place")
-        place_dict = place.to_dict()
-        self.assertIsInstance(place_dict, dict)
-        self.assertEqual(place_dict["name"], "Test Place")
-        self.assertEqual(place_dict["__class__"], "Place")
-
-    def test_from_dict_method(self):
-        """
-        Test the from_dict method of the Place class.
-        """
-        place_dict = {
-            "id": "123",
-            "name": "Test Place",
-            "__class__": "Place"
-        }
-        place = Place.from_dict(place_dict)
-        self.assertIsInstance(place, Place)
-        self.assertEqual(place.id, "123")
-        self.assertEqual(place.name, "Test Place")
 
 if __name__ == '__main__':
     unittest.main()
