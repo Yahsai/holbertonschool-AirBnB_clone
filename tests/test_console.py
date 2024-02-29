@@ -1,14 +1,20 @@
 # tests/test_console.py
+"""Unit test for console
+    """
 import unittest
 from unittest.mock import patch
 from console import HBNBCommand
 import io
 
 class TestConsole(unittest.TestCase):
+    """TestConsole Class
+    Args:
+        unittest (): properties of unit test"""
     def setUp(self):
         self.console = HBNBCommand()
 
     def tearDown(self):
+        """ destroys created file """
         pass
 
     @patch('sys.stdout', new_callable=io.StringIO)
